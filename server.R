@@ -102,23 +102,50 @@ shinyServer(function(input, output,session) {
     str4 <- paste("Average number of words: ",round(mean(text_summ()$Tokens),2))
     HTML(paste(str2,str4, sep = '<br/>'))
   })
+  
   output$samp_data <- DT::renderDataTable({
     DT::datatable(head(dataset()),rownames = FALSE)
   })
+
+  wordlist0 <- reactive({
+    if (is.null(input$wordl)) {return(NULL)}
+    else {return(input$wordl)}
+  })
   
- 
-  # build sample wordlist
-  wl0 = c("battery", "screen", "camera", "music", "app", "apps", "android", "ghz", "lock", "covaxin"); wl0
   
-  # thin the sample wl
-  corpus_lower = tolower(nokia)
-  wl1 = NULL
-  for (word in wl0){
-    if (sum(str_detect(corpus_lower, word)) > 0) {wl1 = c(wl1, word)} }
-  wl1 # use this wordlist
+  finalwordlist <- reactive(
+    {
+      if (is.null(input$wordl)) {return(NULL)}
+      else {
+        corpus_lower = tolower(dataset())
+        wl1 = NULL
+        for (word in wordlist0()){
+          if (sum(str_detect(corpus_lower, word)) > 0) {wl1 = c(wl1, word)} }
+        return(wl1)
+      }
+    } 
+  )
+  
+  output$wordl <- renderPrint(finalwordlist())
+  
+  textdf =  eventReactive(input$apply,{
+    
+    textb = dataset()[,input$y]
+    ids = dataset()[,input$x]
+    
+    textdf1 = textb %>% tibble(text = .) %>%
+      mutate(docID = row_number()) %>%    # row_number() is v useful.    
+      group_by(docID) %>%
+      unnest_tokens(sents, text, token="sentences", to_lower=FALSE) %>%
+      mutate(sentID = row_number()) %>%
+      select(docID, sentID, sents)
+    
+  })
+  
+  
   
   # build unit func for wl against one doc
-  doc_proc <- function(i0=1, corpus0, textdf1){
+  doc_proc <- function(i0=1, corpus0, textdf1, wl1){
     
     doc0 = corpus0[i0] 
     doc00 = textdf1[(textdf1$docID == i0),]
@@ -143,95 +170,39 @@ shinyServer(function(input, output,session) {
     return(df01) } # func ends
   
   # wrapper func 
-  wrapper_corpus <- function(corpus0, textdf1){
+  wrapper_corpus <- function(corpus0, textdf, wl1){
     
     list_dfs = vector(mode="list", length=max(textdf1$docID)) # use in wrapper func
     for (i0 in 1:max(textdf1$docID)){
-      list_dfs[[i0]] = doc_proc(i0, corpus0, textdf1)   } # i0 loop ends
+      list_dfs[[i0]] = doc_proc(i0, corpus0, textdf1, wl1)   } # i0 loop ends
     
     out_df = bind_rows(list_dfs)
     return(out_df) } # func ends
   
-  system.time({ outdf1 = wrapper_corpus(nokia, textdf1) }) # 1s for nokia
-  head(outdf1)  # display and downloadable
+  #head(outdf1)  # display and downloadable
   
   
-  textdf =  eventReactive(input$apply,{
-    
-    textb = dataset()[,input$y]
-    ids = dataset()[,input$x]
-    
-    textdf1 = textb %>% tibble(text = .) %>%
-      mutate(docID = row_number()) %>%    # row_number() is v useful.    
-      group_by(docID) %>%
-      unnest_tokens(sents, text, token="sentences", to_lower=FALSE) %>%
-      mutate(sentID = row_number()) %>%
-      select(docID, sentID, sents)
-   
-  })
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-
-  
-  
-  
-
-  
-
-  
-
-  
-  
-
-  
-  
-
-
-  
-  output$concordance = renderDataTable({
-    
+  output$downloadThisOne = renderDataTable({
+    outdf1 = wrapper_corpus(dataset(), textdf(), finalwordlist())
     # a0 = concordance.r(dataset()$Document,input$concord.word, input$window)
     # concordance = a0
     # datatable(concordance, escape = F, options = list(dom = "lt"))
-    datatable(df_reactive(), escape = F, options = list(dom = "lt"))
+    datatable(outdf1, escape = F, options = list(dom = "lt"))
   })
   
-
-  
-
-
   
   
   
-
+  
+  
+  
+  
+  
   
   output$downloadData1 <- downloadHandler(
     filename = function() { "Nokia_Lumia_reviews.txt" },
     content = function(file) {
       writeLines(readLines("data/Nokia_Lumia_reviews.txt"), file)
-    }
-  )
-  
-  output$downloadData2 <- downloadHandler(
-    filename = function() {"OnePlus.txt"},
-    content = function(file){
-      writeLines(readLines("data/onePlus8T_reviews.txt.txt"),file)
-    }
-  )
-  
-  output$downloadData3 <- downloadHandler(
-    filename = function() { "uber_reviews_itune.csv" },
-    content = function(file) {
-      write.csv(read.csv("data/uber_reviews_itune.csv"), file, row.names=F, col.names=F, fileEncoding = "UTF-8")
     }
   )
   
