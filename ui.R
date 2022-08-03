@@ -16,19 +16,13 @@ shinyUI(fluidPage(
   title = "Keyword Filtering",
   titlePanel(title=div(img(src="logo.png",align='right'),"Keyword Filtering")),
   
-  # Input in sidepanel:
   sidebarPanel(
     
     fileInput("file", "Upload text file"),
     uiOutput('id_var'),
     uiOutput("doc_var"),
     textInput("wordl", ("Enter wordlist to be filtered separated by comma(,)"), value = "camera,screen,app,music,google"),
-    
-    #htmlOutput("pre_proc1"),
-    #htmlOutput("pre_proc2"),
-    
-    
-    actionButton(inputId = "apply",label = "Apply Changes", icon("refresh"))
+    fileInput("file2", "Upload text file containing word list")
     
   ),
   
@@ -71,7 +65,8 @@ shinyUI(fluidPage(
                          DT::dataTableOutput("samp_data")
                 ),
                 tabPanel("Filtered Corpus",
-                         h4("Sample Output"),
+                         h4("Output"),
+                         dataTableOutput('downloadThisOne'),
                          br() 
                 )
                 
