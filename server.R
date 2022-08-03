@@ -42,23 +42,6 @@ shinyServer(function(input, output,session) {
   
   cols <- reactive({colnames(dataset())})
   
-  output$pre_proc1 <- renderUI({if(is.null(dataset())){
-    return(NULL)
-  }else{
-    
-    checkboxInput('html',"Remove HTML tags",value = TRUE)
-    
-  }
-  })
-  
-  output$pre_proc2 <- renderUI({if(is.null(dataset())){
-    return(NULL)
-  }else{
-    checkboxInput('num',"Remove Numbers",value = TRUE)
-    
-  }
-  })
-  
   
   y_col <- reactive({
     x <- match(input$x,cols())
@@ -106,18 +89,30 @@ shinyServer(function(input, output,session) {
   output$samp_data <- DT::renderDataTable({
     DT::datatable(head(dataset()),rownames = FALSE)
   })
-
+  
+  #values <- reactiveValues(wordlist0 = NULL)
+  
+  #observeEvent(input$wordl, {values$wordlist0 <- unlist(strsplit(input$wordl,","))})
+  #observeEvent(input$w0rdl, {values$wordlist0 <- readLines(input$file2$datapath)})
+  #output$outText <- renderText(values$wordlist0)
+  
+#  This chunk is working
   wordlist0 <- reactive({
-    if (is.null(input$wordl)) {return(NULL)}
-    else {return(input$wordl)}
+    if (is.null(input$file2)) {return(NULL)}
+    #else{return(values$wordlist0)}
+     else {
+       a00 = unlist(strsplit(input$wordl,","))
+       a01 = readLines(input$file2$datapath)
+       wordlist0 = unique(gsub("'"," ",c(a00,a01)))
+       
+       return(wordlist0)}
   })
   
-  
-  finalwordlist <- reactive(
-    {
-      if (is.null(input$wordl)) {return(NULL)}
+  #Is not yielding a visible output on Shiny
+  finalwordlist <- reactive({
+      if (is.null(input$file)) {return(NULL)}
       else {
-        corpus_lower = tolower(dataset())
+        corpus_lower = dataset()
         wl1 = NULL
         for (word in wordlist0()){
           if (sum(str_detect(corpus_lower, word)) > 0) {wl1 = c(wl1, word)} }
@@ -126,12 +121,14 @@ shinyServer(function(input, output,session) {
     } 
   )
   
-  output$wordl <- renderPrint(finalwordlist())
   
-  textdf =  eventReactive(input$apply,{
+  output$wordl <- renderPrint(wordlist0())
+  
+  #This Chunk is Working
+  textdf =  reactive({
     
     textb = dataset()[,input$y]
-    ids = dataset()[,input$x]
+    #ids = dataset()[,input$x]
     
     textdf1 = textb %>% tibble(text = .) %>%
       mutate(docID = row_number()) %>%    # row_number() is v useful.    
@@ -142,12 +139,11 @@ shinyServer(function(input, output,session) {
     
   })
   
-  
+  ## NEED TO REFRAME THE UNIT FUNCTION, CONTENT ARE NOT LOOPING BEYOND THE FIRST ONE
   
   # build unit func for wl against one doc
-  doc_proc <- function(i0=1, corpus0, textdf1, wl1){
-    
-    doc0 = corpus0[i0] 
+  doc_proc <- function(i0, textdf1, wl1){
+
     doc00 = textdf1[(textdf1$docID == i0),]
     sent_ind = NULL
     
@@ -170,31 +166,24 @@ shinyServer(function(input, output,session) {
     return(df01) } # func ends
   
   # wrapper func 
-  wrapper_corpus <- function(corpus0, textdf, wl1){
+  wrapper_corpus <- function(textdf, wl1){
     
     list_dfs = vector(mode="list", length=max(textdf1$docID)) # use in wrapper func
+    
     for (i0 in 1:max(textdf1$docID)){
-      list_dfs[[i0]] = doc_proc(i0, corpus0, textdf1, wl1)   } # i0 loop ends
+      list_dfs[[i0]] = doc_proc(i0, textdf1, wl1)   } # i0 loop ends
     
     out_df = bind_rows(list_dfs)
     return(out_df) } # func ends
   
-  #head(outdf1)  # display and downloadable
+  
   
   
   output$downloadThisOne = renderDataTable({
-    outdf1 = wrapper_corpus(dataset(), textdf(), finalwordlist())
-    # a0 = concordance.r(dataset()$Document,input$concord.word, input$window)
-    # concordance = a0
-    # datatable(concordance, escape = F, options = list(dom = "lt"))
-    datatable(outdf1, escape = F, options = list(dom = "lt"))
+    outdf1 = wrapper_corpus(textdf(), finalwordlist())
+    #datatable(textdf())
+    datatable(outdf1)
   })
-  
-  
-  
-  
-  
-  
   
   
   
