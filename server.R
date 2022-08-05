@@ -179,7 +179,8 @@ shinyServer(function(input, output,session) {
   
   
   filteredCorpus <- reactive({
-  return(wrapper_corpus(textdf(),finalwordlist())
+    outdf1 = wrapper_corpus(textdf(), finalwordlist())
+    return(outdf1)
   })
   
   output$downloadThisOne = renderDataTable({
@@ -210,10 +211,7 @@ shinyServer(function(input, output,session) {
     }
    )
     
-    
-  
-  
-  
+   
   output$downloadData1 <- downloadHandler(
     filename = function() { "Nokia_Lumia_reviews.txt" },
     content = function(file) {
