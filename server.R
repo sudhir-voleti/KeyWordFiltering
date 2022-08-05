@@ -14,6 +14,8 @@ shinyServer(function(input, output,session) {
       
       if(file_ext(input$file$datapath)=="txt"){
         Document = readLines(input$file$datapath)
+        Document  =  str_replace_all(Document, "<.*?>", "") # get rid of html junk 
+
         #colnames(Document) <- c("Doc.id","Document")
         Doc.id=seq(1:length(Document))
         calib=data.frame(Doc.id,Document)
@@ -93,7 +95,7 @@ shinyServer(function(input, output,session) {
   
 #  This chunk is working
   wordlist0 <- reactive({
-    if (is.null(input$file2)) {return(NULL)}
+    if (is.null(input$file)) {return(NULL)}
     #else{return(values$wordlist0)}
      
        a00 = unlist(strsplit(input$wordl,","))
@@ -117,7 +119,7 @@ shinyServer(function(input, output,session) {
   )
   
   
-  output$wordl <- renderPrint(wordlist0())
+  output$wordl <- renderPrint(finalwordlist())
   
   #This Chunk is Working
   textdf =  reactive({
