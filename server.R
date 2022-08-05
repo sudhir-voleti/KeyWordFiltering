@@ -178,12 +178,39 @@ shinyServer(function(input, output,session) {
   })
   
   
-  output$downloadThisOne = renderDataTable({
-    outdf1 = wrapper_corpus(textdf(), finalwordlist())
-    #datatable(textdf())
-    datatable(outdf1)
+  filteredCorpus <- reactive({
+  return(wrapper_corpus(textdf(),finalwordlist())
   })
   
+  output$downloadThisOne = renderDataTable({
+    #outdf1 = wrapper_corpus(textdf(), finalwordlist())
+    #datatable(textdf())
+    datatable(filteredCorpus())
+  })
+  
+   output$downloadTheOne <- downloadHandler(
+   filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_Full_filtered.csv",collapse = "") },
+   content = function(file) {
+      
+      new_df <- filteredCorpus()
+      
+      write.csv(new_df, file, row.names=T)
+            
+    }
+   )
+    
+   output$downloadThisTwo <- downloadHandler(
+   filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_filtered.csv",collapse = "") },
+   content = function(file) {
+      
+      new_df <- filteredCorpus()
+      new_df <- subset(new_df, filtered_sents!=" NA ")
+      write.csv(new_df, file, row.names=T)
+            
+    }
+   )
+    
+    
   
   
   
