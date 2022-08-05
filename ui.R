@@ -68,6 +68,8 @@ shinyUI(fluidPage(
                          dataTableOutput('SentenceToken')),
                 tabPanel("Filtered Corpus",
                          h4("Output"),
+                         downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), 
+                         downloadButton('downloadTheOne', 'Download filtered corpus'), br(), 
                          dataTableOutput('downloadThisOne'),
                          br() 
                 )
