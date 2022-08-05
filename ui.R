@@ -18,11 +18,11 @@ shinyUI(fluidPage(
   
   sidebarPanel(
     
-    fileInput("file", "Upload text file"),
+    fileInput("file", "Upload text or CSV file : "),
     uiOutput('id_var'),
     uiOutput("doc_var"),
-    textInput("wordl", ("Enter wordlist to be filtered separated by comma(,)"), value = "camera,screen,app,music,google"),
-    fileInput("file2", "Upload text file containing word list")
+    textInput("wordl", ("Enter keywords to be filtered separated by comma(,)"), value = "amazing, good"),
+    fileInput("file2", "Upload keywords as a txt file. (optional)")
     
   ),
   
