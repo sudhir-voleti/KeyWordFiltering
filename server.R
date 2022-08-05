@@ -90,22 +90,17 @@ shinyServer(function(input, output,session) {
     DT::datatable(head(dataset()),rownames = FALSE)
   })
   
-  #values <- reactiveValues(wordlist0 = NULL)
-  
-  #observeEvent(input$wordl, {values$wordlist0 <- unlist(strsplit(input$wordl,","))})
-  #observeEvent(input$w0rdl, {values$wordlist0 <- readLines(input$file2$datapath)})
-  #output$outText <- renderText(values$wordlist0)
   
 #  This chunk is working
   wordlist0 <- reactive({
     if (is.null(input$file2)) {return(NULL)}
     #else{return(values$wordlist0)}
-     else {
+     
        a00 = unlist(strsplit(input$wordl,","))
        a01 = readLines(input$file2$datapath)
        wordlist0 = unique(gsub("'"," ",c(a00,a01)))
        
-       return(wordlist0)}
+       return(wordlist0)
   })
   
   #Is not yielding a visible output on Shiny
@@ -168,15 +163,17 @@ shinyServer(function(input, output,session) {
   # wrapper func 
   wrapper_corpus <- function(textdf, wl1){
     
-    list_dfs = vector(mode="list", length=max(textdf1$docID)) # use in wrapper func
+    list_dfs = vector(mode="list", length=max(textdf$docID)) # use in wrapper func
     
-    for (i0 in 1:max(textdf1$docID)){
-      list_dfs[[i0]] = doc_proc(i0, textdf1, wl1)   } # i0 loop ends
+    for (i0 in 1:max(textdf$docID)){
+      list_dfs[[i0]] = doc_proc(i0, textdf, wl1)   } # i0 loop ends
     
     out_df = bind_rows(list_dfs)
     return(out_df) } # func ends
   
-  
+  output$SentenceToken = renderDataTable({
+    datatable(textdf())
+  })
   
   
   output$downloadThisOne = renderDataTable({
