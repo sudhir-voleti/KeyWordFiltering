@@ -136,7 +136,17 @@ shinyServer(function(input, output,session) {
     
   })
   
-  ## NEED TO REFRAME THE UNIT FUNCTION, CONTENT ARE NOT LOOPING BEYOND THE FIRST ONE
+  
+ output$downloadThisTwo <- downloadHandler(
+   filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_SentenceTokenized.csv",collapse = "") },
+   content = function(file) {
+      
+      new_df <- textdf()
+      write.csv(new_df, file, row.names=T)
+            
+    }
+   )
+  
   
   # build unit func for wl against one doc
   doc_proc <- function(i0, textdf1, wl1){
@@ -192,11 +202,8 @@ shinyServer(function(input, output,session) {
    output$downloadTheOne <- downloadHandler(
    filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_Full_filtered.csv",collapse = "") },
    content = function(file) {
-      
       new_df <- filteredCorpus()
-      
-      write.csv(new_df, file, row.names=T)
-            
+      write.csv(new_df, file, row.names=T)      
     }
    )
     
