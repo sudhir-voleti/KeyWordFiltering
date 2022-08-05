@@ -65,11 +65,12 @@ shinyUI(fluidPage(
                          DT::dataTableOutput("samp_data")
                 ),
                 tabPanel("Sentence Tokenized",
+                         downloadButton('downloadThisToken', 'Download filtered corpus'), br(),                       
                          dataTableOutput('SentenceToken')),
                 tabPanel("Filtered Corpus",
                          h4("Output"),
-                         downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), 
-                         downloadButton('downloadTheOne', 'Download filtered corpus'), br(), 
+                         downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), br(),
+                         downloadButton('downloadTheOne', 'Download filtered corpus'), br(), br(), 
                          dataTableOutput('downloadThisOne'),
                          br() 
                 )
