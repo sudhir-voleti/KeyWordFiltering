@@ -64,6 +64,8 @@ shinyUI(fluidPage(
                          h4("Sample of uploaded datasest"),
                          DT::dataTableOutput("samp_data")
                 ),
+                tabPanel("Sentence Tokenized",
+                         dataTableOutput('SentenceToken')),
                 tabPanel("Filtered Corpus",
                          h4("Output"),
                          dataTableOutput('downloadThisOne'),
