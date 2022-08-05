@@ -21,8 +21,8 @@ shinyUI(fluidPage(
     fileInput("file", "Upload text or CSV file : "),
     uiOutput('id_var'),
     uiOutput("doc_var"),
-    textInput("wordl", ("Enter keywords to be filtered separated by comma(,)"), value = "amazing, good"),
-    fileInput("file2", "Upload keywords as a txt file. (optional)")
+    textInput("wordl", ("Enter keywords to be filtered separated by comma(,) [Can be left empty]"), value = "amazing, good"),
+    fileInput("file2", "Upload keywords as a txt file. (mandatory)")
     
   ),
   
@@ -31,7 +31,7 @@ shinyUI(fluidPage(
     tabsetPanel(type = "tabs",
                 #
                 tabPanel("Overview & Example Dataset",h4(p("How to use this App")),
-                         verbatimTextOutput('wordl'),
+                         
                          p("To use this app you need a document corpus in txt file format. Make sure each document is separated from another document with a new line character.
                            To do basic Text Analysis in your text corpus, click on Browse in left-sidebar panel and upload the txt file. Once the file is uploaded it will do the computations in 
                             back-end with default inputs and accordingly results will be displayed in various tabs.", align = "justify"),
@@ -65,10 +65,13 @@ shinyUI(fluidPage(
                          DT::dataTableOutput("samp_data")
                 ),
                 tabPanel("Sentence Tokenized",
-                         downloadButton('downloadThisToken', 'Download filtered corpus'), br(),                       
+                         downloadButton('downloadThisToken', 'Download sentence tokenized corpus (as visible below'), br(),                       
                          dataTableOutput('SentenceToken')),
                 tabPanel("Filtered Corpus",
-                         h4("Output"),
+                         h4("Final Filtered"),
+                         h5("Filtering these keywords "),
+                         verbatimTextOutput('wordl'),
+                         br(),
                          downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), br(),
                          downloadButton('downloadTheOne', 'Download filtered corpus'), br(), br(), 
                          dataTableOutput('downloadThisOne'),
