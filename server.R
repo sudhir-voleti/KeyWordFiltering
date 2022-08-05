@@ -137,7 +137,7 @@ shinyServer(function(input, output,session) {
   })
   
   
- output$downloadThisTwo <- downloadHandler(
+ output$downloadThisToken <- downloadHandler(
    filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_SentenceTokenized.csv",collapse = "") },
    content = function(file) {
       
