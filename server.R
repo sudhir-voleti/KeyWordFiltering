@@ -100,12 +100,12 @@ shinyServer(function(input, output,session) {
      
        a00 = unlist(strsplit(input$wordl,","))
        a01 = readLines(input$file2$datapath)
-       wordlist0 = unique(gsub("'"," ",c(a00,a01)))
+       wordlist0 = unique(gsub("'","",c(a00,a01)))
        
        return(wordlist0)
   })
   
-  #Is not yielding a visible output on Shiny
+  
   finalwordlist <- reactive({
       if (is.null(input$file)) {return(NULL)}
       else {
