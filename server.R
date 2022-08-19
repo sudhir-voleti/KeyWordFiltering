@@ -226,7 +226,28 @@ shinyServer(function(input, output,session) {
     }
   )
   
-  output$downloadData4 <- downloadHandler(
+   output$downloadData2 <- downloadHandler(
+    filename = function() { "Wordlist_Nokia.txt" },
+    content = function(file) {
+      writeLines(readLines("data/dummywordl.txt"), file)
+    }
+  )
+  
+  output$downloadData3 <- downloadHandler(
+    filename = function() { "modi-speech-2022.txt" },
+    content = function(file) {
+      writeLines(readLines("data/modi-speech-2022.txt"), file)
+    }
+  )
+  
+    output$downloadData4 <- downloadHandler(
+    filename = function() { "wordlist_modi.txt" },
+    content = function(file) {
+      writeLines(readLines("data/wordlist-speech.txt"), file)
+    }
+  )
+  
+  output$downloadData0 <- downloadHandler(
     filename = function() { "airline_sentiment.csv" },
     content = function(file) {
       write.csv(read.csv("data/airline_sentiment.csv"), file, row.names=F, col.names=F, fileEncoding = "UTF-8")
