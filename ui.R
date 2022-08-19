@@ -8,8 +8,8 @@ library(tidyr)
 library(DT)
 library(stringr)
 library(tools)
-require(dplyr)
-require(tidytext)
+library(dplyr)
+library(tidytext)
 
 
 shinyUI(fluidPage(
@@ -45,9 +45,9 @@ shinyUI(fluidPage(
                          br(),
                          h4(p("Download Sample text file")),
                          downloadButton('downloadData1', 'Download Nokia Lumia reviews txt file'),br(),br(),
-                         #downloadButton('downloadData2', 'Download One Plus reviews txt file'), br(), br(),
-                         #downloadButton('downloadData3', 'Download Uber App Store reviews CSV file'), br(), br(),
-                         #downloadButton('downloadData4', 'Download Airline Tweets CSV file'), br(), 
+                         downloadButton('downloadData2', 'Download mandatory word list - for Nokia'), br(), br(),
+                         downloadButton('downloadData3', 'Download PM 2022 Independence Day Speech'), br(), br(),
+                         downloadButton('downloadData4', 'Download mandatory word list - Speech'), br(), 
                          br()
                          
                          
