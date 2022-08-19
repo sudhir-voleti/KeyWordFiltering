@@ -37,8 +37,8 @@ shinyUI(fluidPage(
                             back-end with default inputs and accordingly results will be displayed in various tabs.", align = "justify"),
                          p("If you wish to change the input, modify the input in left side-bar panel and click on Apply changes. Accordingly results in other tab will be refreshed
                            ", align = "Justify"),
-                         h3("Please do not add spaces before or after the comma in the textbox for keywords."),
-                         h3("The basic format of a wordlist .txt file is each word in a different line."),
+                         h4("Please do not add spaces before or after the comma in the textbox for keywords."),
+                         h4("The basic format of a wordlist .txt file is each word in a different line."),
                          #, height = 280, width = 400
                          br(),
                          h4(p("Download Sample text file")),
