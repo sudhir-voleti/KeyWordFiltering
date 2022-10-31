@@ -69,9 +69,12 @@ shinyUI(fluidPage(
                          h5("Filtering these keywords "),
                          verbatimTextOutput('wordl'),
                          br(),
+                         plotOutput('checker'),
                          downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), br(),
+                         downloadButton('highlighted','(In Beta) Download highlighted corpus'),br(), br(),
                          downloadButton('downloadTheOne', 'Download filtered corpus'), br(), br(), 
                          dataTableOutput('downloadThisOne'),
+                         
                          br() 
                 )
                 
