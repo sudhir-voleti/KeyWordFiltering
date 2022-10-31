@@ -187,16 +187,49 @@ shinyServer(function(input, output,session) {
     datatable(textdf())
   })
   
+  a00 <- reactive({
+    corpus_lower = filteredCorpus()
+    for (word in finalwordlist()){
+      word00 = paste0("**",word,"**")
+      corpus_lower = str_replace_all(corpus_lower, word, word00)
+    }
+    a00 = unlist(corpus_lower)
+    
+    a00 <- as.data.frame(a00)
+    
+    return(a00)
+    
+    
+  })
+  
+  output$highlighted <- downloadHandler(
+    filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_highilighted.csv",collapse = "")},
+    content = function(file){
+      new_df <- a00()
+      write.csv(new_df, file, row.names =T)
+    }
+  )
   
   filteredCorpus <- reactive({
     outdf1 = wrapper_corpus(textdf(), finalwordlist())
+    
     return(outdf1)
   })
   
+
   output$downloadThisOne = renderDataTable({
     #outdf1 = wrapper_corpus(textdf(), finalwordlist())
     #datatable(textdf())
     datatable(filteredCorpus())
+  })
+  
+  output$checker <- renderPlot({
+    new_df <- filteredCorpus()
+    newdf <- nrow(filteredCorpus())
+    newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
+    x <- c(newdf, newdf2)
+    labels <- c("Contain Keywords","NAs")
+    pie(x, labels)
   })
   
    output$downloadTheOne <- downloadHandler(
@@ -217,6 +250,8 @@ shinyServer(function(input, output,session) {
             
     }
    )
+   
+  
     
    
   output$downloadData1 <- downloadHandler(
