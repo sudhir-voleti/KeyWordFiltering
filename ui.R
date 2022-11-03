@@ -22,7 +22,7 @@ shinyUI(fluidPage(
     uiOutput('id_var'),
     uiOutput("doc_var"),
     textInput("wordl", ("Enter keywords to be filtered separated by comma(,) [Can be left empty]"), value = "amazing, good"),
-    fileInput("file2", "Upload keywords as a txt file. (mandatory)")
+    fileInput("file2", "Upload keywords as a txt file. (Optional)")
     
   ),
   
@@ -69,9 +69,11 @@ shinyUI(fluidPage(
                          h5("Filtering these keywords "),
                          verbatimTextOutput('wordl'),
                          br(),
+                         h4("% Document Retained"),
                          plotOutput('checker'),
+                         h4("Filtered Dataset"),
                          downloadButton('downloadThisTwo', 'Download filtered corpus (Without NAs)'), br(), br(),
-                         downloadButton('highlighted','(In Beta) Download highlighted corpus'),br(), br(),
+                         downloadButton('highlighted','(In Beta) Download highlighted corpus'),br(),
                          downloadButton('downloadTheOne', 'Download filtered corpus'), br(), br(), 
                          dataTableOutput('downloadThisOne'),
                          
