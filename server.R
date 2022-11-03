@@ -93,13 +93,19 @@ shinyServer(function(input, output,session) {
   })
   
   
+  wrdl <- reactive({
+    if(is.null(input$file2$datapath)){return(NULL)}
+    return(readlines(input$file2$datapath))
+  })
+  
 #  This chunk is working
   wordlist0 <- reactive({
     if (is.null(input$file)) {return(NULL)}
     #else{return(values$wordlist0)}
      
        a00 = unlist(strsplit(input$wordl,","))
-       a01 = readLines(input$file2$datapath)
+       #a01 = readLines(input$file2$datapath)
+       a01 = wrdl()
        wordlist0 = unique(gsub("'","",c(a00,a01)))
        
        return(wordlist0)
@@ -228,7 +234,7 @@ shinyServer(function(input, output,session) {
     newdf <- nrow(filteredCorpus())
     newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
     x <- c(newdf, newdf2)
-    labels <- c("Contain Keywords","NAs")
+    labels <- c("No of Documents Containing Keywords","No of Documents Containing NAs")
     pie(x, labels)
   })
   
