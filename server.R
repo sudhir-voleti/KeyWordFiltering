@@ -95,7 +95,7 @@ shinyServer(function(input, output,session) {
   
   wrdl <- reactive({
     if(is.null(input$file2$datapath)){return(NULL)}
-    return(readlines(input$file2$datapath))
+    return(readLines(input$file2$datapath))
   })
   
 #  This chunk is working
