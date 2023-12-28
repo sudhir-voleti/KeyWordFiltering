@@ -156,7 +156,7 @@ shinyServer(function(input, output,session) {
     #return(list(test_words, colnames(dtm12), word1, logi2, word2, logi3, dim(dtm12)))
   }
   
-  corpus_dtm <- reactive({build_dtm(dataset())})
+  corpus_dtm <- reactive({build_dtm(dataset()[,input$y])})
   
   output$summary <- renderPrint(run_ttest(corpus_dtm(), word1(), word2())) # 
   
