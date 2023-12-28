@@ -91,7 +91,74 @@ shinyServer(function(input, output,session) {
   output$samp_data <- DT::renderDataTable({
     DT::datatable(head(dataset()),rownames = FALSE)
   })
+
+  build_dtm <- function(corpus0){
+    
+    tidy_df = dplyr::tibble(text = corpus0) |>  
+      
+      dplyr::mutate(doc_id = row_number()) |> # Add doc_id first
+      dplyr::rename(text = text) |> 
+      
+      dplyr::select(doc_id, text) |> # Reorder columns
+      
+      unnest_tokens(word, text) |>
+      dplyr::anti_join(stop_words) |>
+      dplyr::group_by(doc_id) |>
+      dplyr::count(word, sort=TRUE) |>
+      dplyr::rename(value = n)
+    
+    
+    dtm = tidy_df %>% 
+      cast_sparse(doc_id, word, value)
+    
+    return(dtm) 
+  }
   
+  word1 <- reactive({
+    if (is.null(input$wordl_t1)) {return(NULL)}
+    else{
+      return(unlist(strsplit(input$wordl_t1, ",")))
+    }
+  })
+  
+  word2 <- reactive({
+    if (is.null(input$wordl_t2)) {return(NULL)}
+    else{
+      return(unlist(strsplit(input$wordl_t2, ",")))
+    }
+  })
+  
+  run_ttest <- function(dtm1, word1, word2){
+    
+    test_words = c(word1, word2); test_words
+    test_words = stringr::str_trim(tolower(test_words))
+    word1 = stringr::str_trim(tolower(word1))
+    word2 = stringr::str_trim(tolower(word2))
+    
+    #dtm1 = t(dtm1)
+    
+    logi0 = colnames(dtm1) %in% test_words # 0s
+    dtm11 = dtm1[,logi0]; dim(dtm11) 
+    logi1 = (apply(dtm11, 1, sum) > 0)
+    dtm12 = dtm11[logi1,]; dim(dtm12)
+    
+    logi2= colnames(dtm12) %in% word1
+    logi3 = colnames(dtm12) %in% word2
+    
+    word1_colm = apply(dtm12[,logi2], 1, sum)
+    word2_colm = apply(dtm12[,logi3], 1, sum)
+    
+    #test_statistic0 = word1_colm - word2_colm; 
+    #test_statistic0 |> head()
+    
+    return(t.test(word1_colm, word2_colm)) # test_statistic0
+    
+    #return(list(test_words, colnames(dtm12), word1, logi2, word2, logi3, dim(dtm12)))
+  }
+  
+  corpus_dtm <- reactive({build_dtm(dataset())})
+  
+  output$summary <- renderPrint(run_ttest(corpus_dtm(), word1(), word2())) # 
   
   wrdl <- reactive({
     if(is.null(input$file2$datapath)){return(NULL)}
