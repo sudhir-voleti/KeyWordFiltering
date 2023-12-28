@@ -1,0 +1,158 @@
+---
+title: "keyword filtering app updates RMD Sept23"
+output:
+  html_document:
+    df_print: paged
+---
+
+### Gen attempt at keyword filtering app code
+
+Using nokia corpus as example.
+
+```{r setup_chunk}
+rm(list=ls())
+
+suppressPackageStartupMessages({
+  
+  require(stringr)
+  require(dplyr)
+  require(tidytext)
+  require(wordcloud)
+  
+})
+
+# load sample data 
+nokia = readLines('https://raw.githubusercontent.com/sudhir-voleti/sample-data-sets/master/text%20analysis%20data/amazon%20nokia%20lumia%20reviews.txt')
+nokia  =  str_replace_all(nokia, "<.*?>", "") # get rid of html junk 
+str(nokia)
+
+```
+## Build Functionality to t-test word occurrences - Sept 2023
+
+Idea is to see if different terms and sets of terms in corpora have statistically significantly different distributions.
+
+Example, in the nokia corpus, say we want to see whether 'camera related issues' have more mention slash incidence slash occurrence etc. as against, say, 'battery related issues'.
+
+So user inputs a set of tokens for the former in UI boxes 'input tokens 1' and 'input tokens 2' respectively.
+
+
+User input boxes (enter tokens, separated by commas)
+Input tokens 1  # UI
+Input tokens 2  # UI
+
+
+For example, let's say user inputs these two below groups of words:
+word_grp1 = c("camera", "display", "resolution", "pixel", "pixels")
+word_grp2 = c("battery", "charge", "charging", "life")
+
+
+The machine then 
+[1] computes the total number of mentions of each token in group one and group two  respectively, 
+[2] drops all docs where no mention of any token from any group happened, 
+[3] computes a test statistic (mentions in grp1 minus mentions in grp2), and 
+[4] runs a t-test with null saying there is no difference in mentions.
+
+The results are plain R results. Behold.
+
+```{r ttest_func}
+
+"# simple dtm builder func"
+build_dtm <- function(corpus0){
+tidy_df = tibble(text = corpus0) |>   
+                    dplyr::mutate(doc = row_number()) |>
+                    unnest_tokens(word, text) |> 
+                    anti_join(stop_words) |>
+                    group_by(doc) |>
+                    dplyr::count(word, sort=TRUE) |>  # 
+                    dplyr::rename(value = n)
+head(tidy_df)
+
+dtm = tidy_df %>% cast_sparse(doc, word, value);    dtm[1:9, 1:9]
+
+return(dtm)  }   # func ends
+
+# test-drive above func
+system.time({ dtm1 = build_dtm(nokia) })  #0.33s for nokia
+
+#dtm1 = build_dtm(nokia)
+
+"## func to run ttest for mentions across two token-groups"
+run_ttest <- function(dtm1, word1, word2){
+  
+  test_words = c(word1, word2); test_words
+  
+  logi0 = colnames(dtm1) %in% test_words # 0s
+  dtm11 = dtm1[,logi0]; dim(dtm11) 
+  logi1 = (apply(dtm11, 1, sum) > 0)
+  dtm12 = dtm11[logi1,]; dim(dtm12)
+  
+  logi2= colnames(dtm12) %in% word1
+  logi3 = colnames(dtm12) %in% word2x
+  
+  word1_colm = apply(dtm12[,logi2], 1, sum)
+  word2_colm = apply(dtm12[,logi3], 1, sum)
+  
+  test_statistic0 = word1_colm - word2_colm; test_statistic0 |> head()
+
+  print(t.test(test_statistic0))
+}
+
+## test-drive above for grps of words
+word_grp1 = c("camera", "display", "resolution", "pixel", "pixels")
+word_grp2 = c("battery", "charge", "charging", "life")
+
+system.time({ run_ttest(dtm1, word_grp1, word_grp2) }) # 0.06s 
+
+```
+
+Can include these 2 easily into the keyword filtering app. In an additional tab perhaps?
+
+## Summary table output 
+
+Include a simple summary table that displays number of mentions for each token and number of docs in which the mentions happened.
+
+This should show up in the last tab at the top, just below the wordlist.
+
+See code below.
+
+```{r summary_tbl}
+
+# UI sample wordlist
+wl0 = c("battery", "screen", "camera", "music", "app", "apps", "android", "ghz", "lock", "covaxin")  # coming from user input
+
+# thin the sample wl
+corpus_lower = tolower(nokia)
+wl1 = NULL
+
+for (word in wl0){ if (sum(str_detect(corpus_lower, word)) > 0) {wl1 = c(wl1, word)} }
+wl1 # use this wordlist
+
+# func to build summary tbl for each keyword token
+build_summ_tbl <- function(dtm1, wl1){
+  
+  logi00 = colnames(dtm1) %in% wl1
+  dtm2 = dtm1[,logi00]; dim(dtm2)
+  colm2 = apply(dtm2, 2, sum)
+  
+  outp_df = data.frame(words=wl1, mentions_num = colm2,
+                       docs_propn = numeric(length(wl1)))
+  
+  for (i0 in 1:length(wl1)){
+    logi0 = colnames(dtm2) %in% wl1[i0]
+    dtm_colm = dtm2[,logi0]
+    
+    a1 = sum(dtm_colm > 0)/nrow(dtm1); a1
+    outp_df$docs_propn[i0] = round(a1,3)
+  }
+  
+  return(outp_df) } # func ends
+
+# test-drive func
+system.time({ outp_df = build_summ_tbl(dtm1, wl1) }) # 0.06s
+
+head(outp_df)
+
+```
+
+Sudhir
+Sept 2023
