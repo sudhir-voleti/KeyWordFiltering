@@ -22,7 +22,10 @@ shinyUI(fluidPage(
     uiOutput('id_var'),
     uiOutput("doc_var"),
     textInput("wordl", ("Enter keywords to be filtered separated by comma(,) [Optional]"), value = "amazing, good"),
-    fileInput("file2", "Upload keywords as a txt file. (Optional)")
+    fileInput("file2", "Upload keywords as a txt file. (Optional)"),
+    textInput("wordl_t1", ("Enter keywords to check significance [Optional]"), value = "amazing, good, nokia, screen"),
+    textInput("wordl_t2", ("Enter keywords to check significance against[Optional]"), value = "better, woah, phone, apps, camera, works, display"),
+      
     
   ),
   
@@ -64,6 +67,8 @@ shinyUI(fluidPage(
                 tabPanel("Sentence Tokenized",
                          downloadButton('downloadThisToken', 'Download sentence tokenized corpus (as visible below'), br(),                       
                          dataTableOutput('SentenceToken')),
+                tabPanel("T-Test",
+                         verbatimTextOutput("summary")),
                 tabPanel("Filtered Corpus",
                          h4("Final Filtered"),
                          h5("Filtering these keywords "),
