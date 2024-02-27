@@ -108,7 +108,7 @@ shinyServer(function(input, output,session) {
       dplyr::rename(value = n)
     
     
-    dtm = tidy_df %>% 
+    dtm = tidy_df |> 
       cast_sparse(doc_id, word, value)
     
     return(dtm) 
@@ -199,12 +199,13 @@ shinyServer(function(input, output,session) {
     
     textb = dataset()[,input$y]
     #ids = dataset()[,input$x]
-    
-    textdf1 = textb %>% tibble(text = .) %>%
-      mutate(docID = row_number()) %>%    # row_number() is v useful.    
-      group_by(docID) %>%
-      unnest_tokens(sents, text, token="sentences", to_lower=FALSE) %>%
-      mutate(sentID = row_number()) %>%
+
+    colnames(textb) = "text"
+    textdf1 = textb |> tibble() |> 
+      mutate(docID = row_number()) |>    # row_number() is v useful.    
+      group_by(docID) |>
+      unnest_tokens(sents, text, token="sentences", to_lower=FALSE) |>
+      mutate(sentID = row_number()) |>
       select(docID, sentID, sents)
     
   })
