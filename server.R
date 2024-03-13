@@ -88,24 +88,18 @@ shinyServer(function(input, output,session) {
   })
 
   build_dtm <- function(corpus0){
-    
-    tidy_df = dplyr::tibble(text = corpus0) |>  
-      
+    tidy_df = dplyr::tibble(text = corpus0) |>        
       dplyr::mutate(doc_id = row_number()) |> # Add doc_id first
-      dplyr::rename(text = text) |> 
-      
-      dplyr::select(doc_id, text) |> # Reorder columns
-      
+      dplyr::rename(text = text) |>       
+      dplyr::select(doc_id, text) |> # Reorder columns      
       unnest_tokens(word, text) |>
       dplyr::anti_join(stop_words) |>
       dplyr::group_by(doc_id) |>
       dplyr::count(word, sort=TRUE) |>
-      dplyr::rename(value = n)
-    
+      dplyr::rename(value = n)    
     
     dtm = tidy_df |> 
-      cast_sparse(doc_id, word, value)
-    
+      cast_sparse(doc_id, word, value)    
     return(dtm) 
   }
   
@@ -123,8 +117,7 @@ shinyServer(function(input, output,session) {
     }
   })
   
-  run_ttest <- function(dtm1, word1, word2){
-    
+  run_ttest <- function(dtm1, word1, word2){    
     test_words = c(word1, word2); test_words
     test_words = stringr::str_trim(tolower(test_words))
     word1 = stringr::str_trim(tolower(word1))
@@ -146,18 +139,16 @@ shinyServer(function(input, output,session) {
     #test_statistic0 = word1_colm - word2_colm; 
     #test_statistic0 |> head()
     
-    return(t.test(word1_colm, word2_colm)) # test_statistic0
-    
+    return(t.test(word1_colm, word2_colm)) # test_statistic0    
     #return(list(test_words, colnames(dtm12), word1, logi2, word2, logi3, dim(dtm12)))
   }
   
   corpus_dtm <- reactive({build_dtm(dataset()[,input$y])})
-  
   output$summary <- renderPrint(run_ttest(corpus_dtm(), word1(), word2())) # 
   
   wrdl <- reactive({
     if(is.null(input$file2$datapath)){return(NULL)}
-    return(readLines(input$file2$datapath))
+    else { return(readLines(input$file2$datapath)) }
   })
   
 #  This chunk is working
@@ -165,11 +156,9 @@ shinyServer(function(input, output,session) {
     if (is.null(input$file)) {return(NULL)} 
     else {
        a00 = unlist(strsplit(input$wordl,","))
-       #a01 = readLines(input$file2$datapath)
        a01 = wrdl()
-       wordlist0 = unique(gsub("'","",c(a00,a01)))
-       #return(values$wordlist0)}
-        return(wordlist0) }
+       wordlist0 = unique(gsub("'","",c(a00,a01)))       
+       return(wordlist0) }
   })
     
   finalwordlist <- reactive({
@@ -189,21 +178,20 @@ shinyServer(function(input, output,session) {
     #ids = dataset()[,input$x]
     
     colnames(textb[,1]) = "text"
-    textdf1 = textb |> tibble() |> 
+    textdf1 = textb |> dplyr::tibble() |> 
       mutate(docID = row_number()) |>    # row_number() is v useful.    
       group_by(docID) |>
       unnest_tokens(sents, text, token="sentences", to_lower=FALSE) |>
       mutate(sentID = row_number()) |>
-      select(docID, sentID, sents)    
+      select(docID, sentID, sents);
+    return(textdf1)
   })
     
  output$downloadThisToken <- downloadHandler(
    filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_SentenceTokenized.csv",collapse = "") },
-   content = function(file) {
-      
+   content = function(file) {      
       new_df <- textdf()
-      write.csv(new_df, file, row.names=T)
-            
+      write.csv(new_df, file, row.names=T)            
     }
    )
   
@@ -226,10 +214,8 @@ shinyServer(function(input, output,session) {
     doc_sub = NULL
     for (i1 in 1:nrow(df00)){
       doc_sub = paste(doc_sub, df00$sents[i1], sep=" ")
-    }
-    
-    df01 = data.frame(docID=i0, filtered_sents=doc_sub)
-    
+    }    
+    df01 = data.frame(docID=i0, filtered_sents=doc_sub)    
     return(df01) } # func ends
   
   # wrapper func 
@@ -253,13 +239,9 @@ shinyServer(function(input, output,session) {
       word00 = paste0("**",word,"**")
       corpus_lower = str_replace_all(corpus_lower, word, word00)
     }
-    a00 = unlist(corpus_lower)
-    
-    a00 <- as.data.frame(a00)
-    
-    return(a00)
-    
-    
+    a00 = unlist(corpus_lower)    
+    a00 <- as.data.frame(a00)    
+    return(a00)    
   })
   
   output$highlighted <- downloadHandler(
@@ -271,12 +253,10 @@ shinyServer(function(input, output,session) {
   )
   
   filteredCorpus <- reactive({
-    outdf1 = wrapper_corpus(textdf(), finalwordlist())
-    
+    outdf1 = wrapper_corpus(textdf(), finalwordlist())    
     return(outdf1)
   })
   
-
   output$downloadThisOne = renderDataTable({
     #outdf1 = wrapper_corpus(textdf(), finalwordlist())
     #datatable(textdf())
@@ -310,10 +290,7 @@ shinyServer(function(input, output,session) {
             
     }
    )
-   
-  
-    
-   
+     
   output$downloadData1 <- downloadHandler(
     filename = function() { "Nokia_Lumia_reviews.txt" },
     content = function(file) {
