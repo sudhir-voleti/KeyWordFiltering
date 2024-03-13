@@ -167,15 +167,14 @@ shinyServer(function(input, output,session) {
   
 #  This chunk is working
   wordlist0 <- reactive({
-    if (is.null(input$file)) {return(NULL)}
-    #else{return(values$wordlist0)}
-     
+    if (is.null(input$file)) {return(NULL)} 
+    else {
        a00 = unlist(strsplit(input$wordl,","))
        #a01 = readLines(input$file2$datapath)
        a01 = wrdl()
        wordlist0 = unique(gsub("'","",c(a00,a01)))
-       
-       return(wordlist0)
+       return(values$wordlist0)}
+       # return(wordlist0)
   })
   
   
