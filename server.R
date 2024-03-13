@@ -169,7 +169,7 @@ shinyServer(function(input, output,session) {
        a01 = wrdl()
        wordlist0 = unique(gsub("'","",c(a00,a01)))
        #return(values$wordlist0)}
-        return(wordlist0)
+        return(wordlist0) }
   })
     
   finalwordlist <- reactive({
