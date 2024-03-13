@@ -102,7 +102,8 @@ shinyServer(function(input, output,session) {
       cast_sparse(doc_id, word, value)    
     return(dtm) 
   }
-  
+
+  # t-test word-groups collecting below
   word1 <- reactive({
     if (is.null(input$wordl_t1)) {return(NULL)}
     else{
@@ -121,10 +122,8 @@ shinyServer(function(input, output,session) {
     test_words = c(word1, word2); test_words
     test_words = stringr::str_trim(tolower(test_words))
     word1 = stringr::str_trim(tolower(word1))
-    word2 = stringr::str_trim(tolower(word2))
-    
-    #dtm1 = t(dtm1)
-    
+    word2 = stringr::str_trim(tolower(word2))    
+    #dtm1 = t(dtm1)    
     logi0 = colnames(dtm1) %in% test_words # 0s
     dtm11 = dtm1[,logi0]; dim(dtm11) 
     logi1 = (apply(dtm11, 1, sum) > 0)
@@ -177,8 +176,9 @@ shinyServer(function(input, output,session) {
     textb = dataset()[,input$y]  # user-chosen text colm
     #ids = dataset()[,input$x]
     
-    colnames(textb[,1]) = "text"
-    textdf1 = textb |> dplyr::tibble() |> 
+    #colnames(textb[,1]) = "text"
+    #textdf1 = textb |> dplyr::tibble() |> 
+    textdf1 = data.frame("text" = textb) |> 
       mutate(docID = row_number()) |>    # row_number() is v useful.    
       group_by(docID) |>
       unnest_tokens(sents, text, token="sentences", to_lower=FALSE) |>
@@ -219,8 +219,7 @@ shinyServer(function(input, output,session) {
     return(df01) } # func ends
   
   # wrapper func 
-  wrapper_corpus <- function(textdf, wl1){
-    
+  wrapper_corpus <- function(textdf, wl1){    
     list_dfs = vector(mode="list", length=max(textdf$docID)) # use in wrapper func
     
     for (i0 in 1:max(textdf$docID)){
