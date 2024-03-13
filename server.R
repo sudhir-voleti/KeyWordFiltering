@@ -20,7 +20,7 @@ shinyServer(function(input, output,session) {
         Doc.id=seq(1:length(Document))
         calib=data.frame(Doc.id,Document)
         print(input$file$name)
-        return(calib)}
+        return(calib)}     
       else{
         Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
         Document[,1] <- str_to_title(Document[,1])
@@ -42,14 +42,11 @@ shinyServer(function(input, output,session) {
     }
   })
   
-  cols <- reactive({colnames(dataset())})
-  
-  
+  cols <- reactive({colnames(dataset())})    
   y_col <- reactive({
     x <- match(input$x,cols())
     y_col <- cols()[-x]
-    return(y_col)
-    
+    return(y_col)   
   })
   
   output$id_var <- renderUI({
@@ -57,11 +54,9 @@ shinyServer(function(input, output,session) {
     selectInput("x","Select ID Column",choices = cols())
   })
   
-  
   output$doc_var <- renderUI({
     selectInput("y","Select Text Column",choices = y_col())
   })
-  
   
   output$up_size <- renderPrint({
     size <- dim(dataset())
@@ -176,8 +171,7 @@ shinyServer(function(input, output,session) {
        #return(values$wordlist0)}
         return(wordlist0)
   })
-  
-  
+    
   finalwordlist <- reactive({
       if (is.null(input$file)) {return(NULL)}
       else {
@@ -185,31 +179,24 @@ shinyServer(function(input, output,session) {
         wl1 = NULL
         for (word in wordlist0()){
           if (sum(str_detect(corpus_lower, word)) > 0) {wl1 = c(wl1, word)} }
-        return(wl1)
-      }
-    } 
-  )
-  
-  
+        return(wl1) }
+    })  
   output$wordl <- renderPrint(finalwordlist())
   
   #This Chunk is Working
-  textdf =  reactive({
-    
-    textb = dataset()[,input$y]
+  textdf =  reactive({    
+    textb = dataset()[,input$y]  # user-chosen text colm
     #ids = dataset()[,input$x]
-
-    colnames(textb) = "text"
+    
+    colnames(textb[,1]) = "text"
     textdf1 = textb |> tibble() |> 
       mutate(docID = row_number()) |>    # row_number() is v useful.    
       group_by(docID) |>
       unnest_tokens(sents, text, token="sentences", to_lower=FALSE) |>
       mutate(sentID = row_number()) |>
-      select(docID, sentID, sents)
-    
+      select(docID, sentID, sents)    
   })
-  
-  
+    
  output$downloadThisToken <- downloadHandler(
    filename = function(){paste(str_split(input$file$name,"\\.")[[1]][1],"_SentenceTokenized.csv",collapse = "") },
    content = function(file) {
