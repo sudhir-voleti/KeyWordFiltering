@@ -173,8 +173,8 @@ shinyServer(function(input, output,session) {
        #a01 = readLines(input$file2$datapath)
        a01 = wrdl()
        wordlist0 = unique(gsub("'","",c(a00,a01)))
-       return(values$wordlist0)}
-       # return(wordlist0)
+       #return(values$wordlist0)}
+        return(wordlist0)
   })
   
   
