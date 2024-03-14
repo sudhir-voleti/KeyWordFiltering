@@ -228,10 +228,14 @@ shinyServer(function(input, output,session) {
     out_df = bind_rows(list_dfs)
     return(out_df) } # func ends
   
-  output$SentenceToken = renderDataTable({
-    datatable(textdf())
-  })
+  output$SentenceToken = renderDataTable({ datatable(textdf()) })
   
+  filteredCorpus <- reactive({
+    outdf1 = wrapper_corpus(textdf(), finalwordlist())    
+    return(outdf1)
+  })
+
+  ## highlighted wala beta phase
   a00 <- reactive({
     corpus_lower = filteredCorpus()
     for (word in finalwordlist()){
@@ -251,11 +255,6 @@ shinyServer(function(input, output,session) {
     }
   )
   
-  filteredCorpus <- reactive({
-    outdf1 = wrapper_corpus(textdf(), finalwordlist())    
-    return(outdf1)
-  })
-  
   output$downloadThisOne = renderDataTable({
     #outdf1 = wrapper_corpus(textdf(), finalwordlist())
     #datatable(textdf())
@@ -265,7 +264,8 @@ shinyServer(function(input, output,session) {
   output$checker <- renderPlot({
     new_df <- filteredCorpus()
     newdf <- nrow(filteredCorpus())
-    newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
+    #newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
+    newdf2 <- nrow(new_df[(filtered_sents !=" NA "),])
     x <- c(newdf, newdf2)
     labels <- c("No of Documents Containing Keywords","No of Documents Containing NAs")
     pie(x, labels)
