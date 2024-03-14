@@ -265,7 +265,7 @@ shinyServer(function(input, output,session) {
     new_df <- filteredCorpus()
     newdf <- nrow(filteredCorpus())
     #newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
-    newdf2 <- nrow(new_df[(filtered_sents !=" NA "),])
+    newdf2 <- nrow(new_df[(new_df$filtered_sents !=" NA "),])
     x <- c(newdf, newdf2)
     labels <- c("No of Documents Containing Keywords","No of Documents Containing NAs")
     pie(x, labels)
@@ -284,7 +284,8 @@ shinyServer(function(input, output,session) {
    content = function(file) {
       
       new_df <- filteredCorpus()
-      new_df <- subset(new_df, filtered_sents!=" NA ")
+      #new_df <- subset(new_df, filtered_sents!=" NA ")
+      new_df <- new_df[(new_df$filtered_sents!=" NA "),]
       write.csv(new_df, file, row.names=T)
             
     }
