@@ -243,7 +243,7 @@ shinyServer(function(input, output,session) {
       corpus_lower$filtered_sents = str_replace_all(corpus_lower$filtered_sents, word, word00)
     }
     #a00 = unlist(corpus_lower)    
-    a00 <- as.data.frame(corpus_lower)    
+    a00 <- as.data.frame(corpus_lower[(corpus_lower$filtered_sents != " NA "),])    
     return(a00)    
   })
   
