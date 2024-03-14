@@ -240,10 +240,10 @@ shinyServer(function(input, output,session) {
     corpus_lower = filteredCorpus()
     for (word in finalwordlist()){
       word00 = paste0("**",word,"**")
-      corpus_lower = str_replace_all(corpus_lower, word, word00)
+      corpus_lower$filtered_sents = str_replace_all(corpus_lower$filtered_sents, word, word00)
     }
-    a00 = unlist(corpus_lower)    
-    a00 <- as.data.frame(a00)    
+    #a00 = unlist(corpus_lower)    
+    a00 <- as.data.frame(corpus_lower)    
     return(a00)    
   })
   
