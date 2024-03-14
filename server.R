@@ -240,10 +240,8 @@ shinyServer(function(input, output,session) {
     doc_sub = NULL
     for (i1 in 1:nrow(df00)){
       doc_sub = paste(doc_sub, df00$sents[i1], sep=" ")
-    }
-    
-    df01 = data.frame(docID=i0, filtered_sents=doc_sub)
-    
+    }    
+    df01 = data.frame(docID=i0, filtered_sents=doc_sub)    
     return(df01) } # func ends
   
   # wrapper func 
@@ -261,19 +259,21 @@ shinyServer(function(input, output,session) {
     datatable(textdf())
   })
   
+  filteredCorpus <- reactive({
+    outdf1 = wrapper_corpus(textdf(), finalwordlist())    
+    return(outdf1)
+  })
+
+  ## for the highlighted filt corpus in beta
   a00 <- reactive({
     corpus_lower = filteredCorpus()
     for (word in finalwordlist()){
       word00 = paste0("**",word,"**")
       corpus_lower = str_replace_all(corpus_lower, word, word00)
     }
-    a00 = unlist(corpus_lower)
-    
-    a00 <- as.data.frame(a00)
-    
-    return(a00)
-    
-    
+    a00 = unlist(corpus_lower)    
+    a00 <- as.data.frame(a00)    
+    return(a00)        
   })
   
   output$highlighted <- downloadHandler(
@@ -284,13 +284,6 @@ shinyServer(function(input, output,session) {
     }
   )
   
-  filteredCorpus <- reactive({
-    outdf1 = wrapper_corpus(textdf(), finalwordlist())
-    
-    return(outdf1)
-  })
-  
-
   output$downloadThisOne = renderDataTable({
     #outdf1 = wrapper_corpus(textdf(), finalwordlist())
     #datatable(textdf())
@@ -300,7 +293,8 @@ shinyServer(function(input, output,session) {
   output$checker <- renderPlot({
     new_df <- filteredCorpus()
     newdf <- nrow(filteredCorpus())
-    newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
+    #newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
+    newdf2 <- nrow(new_df[(filtered_sents !=" NA "),])
     x <- c(newdf, newdf2)
     labels <- c("No of Documents Containing Keywords","No of Documents Containing NAs")
     pie(x, labels)
