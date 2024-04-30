@@ -10,6 +10,8 @@ library(stringr)
 library(tools)
 library(dplyr)
 library(tidytext)
+library(tools)
+library(pdftools)
 
 
 shinyUI(fluidPage(
@@ -18,11 +20,14 @@ shinyUI(fluidPage(
   
   sidebarPanel(
     
-    fileInput("file", "Upload text or CSV file : "),
+    fileInput("file", "Upload file: txt, csv or pdf"),
     uiOutput('id_var'),
     uiOutput("doc_var"),
+    #textInput("stopw", ("Enter stop words separated by comma(,)"), value = "will,can"),
+    
     textInput("wordl", ("Enter keywords to be filtered separated by comma(,) [Optional]"), value = "amazing, good"),
     fileInput("file2", "Upload keywords as a txt file. (Optional)"),
+    
     textInput("wordl_t1", ("Enter keywords to check significance [Optional]"), value = "amazing, good, nokia, screen"),
     textInput("wordl_t2", ("Enter keywords to check significance against[Optional]"), value = "better, woah, phone, apps, camera, works, display"),
       
@@ -44,10 +49,10 @@ shinyUI(fluidPage(
                          #, height = 280, width = 400
                          br(),
                          h4(p("Download Sample text file")),
-                         downloadButton('downloadData1', 'Download Nokia Lumia reviews txt file'),br(),br(),
+                         downloadButton('downloadData1', 'Download Nokia Lumia reviews TXT file'),br(),br(),
                          downloadButton('downloadData2', 'Download word list - for Nokia'), br(), br(),
                          downloadButton('downloadData3', 'Download PM 2022 Independence Day Speech'), br(), br(),
-                         #downloadButton('downloadData4', 'Download mandatory word list - Speech'), br(), 
+                         downloadButton('downloadData5', 'Download SC verdict Airtel case PDF file'), br(), 
                          br()
                          
                          
