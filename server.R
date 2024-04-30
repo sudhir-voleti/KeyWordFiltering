@@ -8,40 +8,50 @@ require(tidytext)
 shinyServer(function(input, output,session) {
   set.seed=1082022   
   
-  dataset <- reactive({
+dataset <- reactive({
     if (is.null(input$file)) {return(NULL)}
     else {
       
       if(file_ext(input$file$datapath)=="txt"){
         Document = readLines(input$file$datapath)
-        Document  =  str_replace_all(Document, "<.*?>", "") # get rid of html junk 
-
         #colnames(Document) <- c("Doc.id","Document")
         Doc.id=seq(1:length(Document))
         calib=data.frame(Doc.id,Document)
         print(input$file$name)
-        return(calib)}     
-      else{
-        Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
-        Document[,1] <- str_to_title(Document[,1])
-        Document[,1] <- make.names(Document[,1], unique=TRUE)
-        Document[,1] <- tolower(Document[,1])
-        Document[,1] <- str_replace_all(Document[,1],"\\.","_")
-        Document<-Document[complete.cases(Document), ]
-        Document <- Document[!(duplicated(Document[,1])), ]
-        rownames(Document) <- Document[,1]
-        
-        # colnames(Document) <- c("Doc.id","Document")
-        #Doc.id=seq(1:length(Document))
-        # calib=data.frame(Doc.id,Document)
-        #print(input$file$name)
-        
-        return(Document)
+        return(calib)} else if(file_ext(input$file$datapath)=="pdf")
+      {          
+        pdf_text0 <- pdftools::pdf_text(input$file$datapath)                
+        pdf_text1 <- str_replace_all(pdf_text0, 
+                                     pattern = "([.!?])\n(\\w)", 
+                                     replacement = "\\1\n\n\\2") 
+  
+        # Collapse multiple repetitions of newline into a paragraph break
+        pdf_text1 <- gsub("\n{2,}", "\n\n", pdf_text1)
+        pdf_text1 <- gsub("\n\\s{2,}", " ", pdf_text1)
+  
+        # Combine text from all pages while preserving line breaks
+        pdf_text1 <- paste(pdf_text1, collapse = "\n\n")
+        pdf_text2 <- str_split(pdf_text1, pattern = "\n\n")
+        #Document = pdf_text2
+          Doc.id <- seq(1, length(pdf_text2[[1]]))
+          calib <- data.frame(Doc.id, pdf_text2)
+          colnames(calib) <- c("Doc.id","Documents")
+          print(input$file$name)
+          return(calib)} else
+      {
+      Document = read.csv(input$file$datapath ,header=TRUE, sep = ",", stringsAsFactors = F)
+      Document[,1] <- str_to_title(Document[,1])
+      Document[,1] <- make.names(Document[,1], unique=TRUE)
+      Document[,1] <- tolower(Document[,1])
+      Document[,1] <- str_replace_all(Document[,1],"\\.","_")
+      Document<-Document[complete.cases(Document), ]
+      Document <- Document[!(duplicated(Document[,1])), ]
+      rownames(Document) <- Document[,1]
+      return(Document)
       }
       
     }
-  })
-  
+  })  
   cols <- reactive({colnames(dataset())})    
   y_col <- reactive({
     x <- match(input$x,cols())
@@ -312,10 +322,10 @@ shinyServer(function(input, output,session) {
     }
   )
   
-    output$downloadData4 <- downloadHandler(
-    filename = function() { "wordlist_modi.txt" },
+    output$downloadData5 <- downloadHandler(
+    filename = function() { "SC Judgement Airtel case PDF" },
     content = function(file) {
-      writeLines(readLines("data/wordlist-speech.txt"), file)
+      writeLines(readLines("data/SC on Airtel case_Judgement_03-Jan-2024.pdf"), file)
     }
   )
   
