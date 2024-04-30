@@ -23,15 +23,14 @@ shinyUI(fluidPage(
     fileInput("file", "Upload file: txt, csv or pdf"),
     uiOutput('id_var'),
     uiOutput("doc_var"),
-    #textInput("stopw", ("Enter stop words separated by comma(,)"), value = "will,can"),
     
     textInput("wordl", ("Enter keywords to be filtered separated by comma(,) [Optional]"), value = "amazing, good"),
     fileInput("file2", "Upload keywords as a txt file. (Optional)"),
     
     textInput("wordl_t1", ("Enter keywords to check significance [Optional]"), value = "amazing, good, nokia, screen"),
     textInput("wordl_t2", ("Enter keywords to check significance against[Optional]"), value = "better, woah, phone, apps, camera, works, display"),
-      
     
+    actionButton(inputId = "apply",label = "Apply Changes", icon("refresh"))
   ),
   
   # Main Panel:
@@ -54,8 +53,6 @@ shinyUI(fluidPage(
                          downloadButton('downloadData3', 'Download PM 2022 Independence Day Speech'), br(), br(),
                          downloadButton('downloadData5', 'Download SC verdict Airtel case PDF file'), br(), 
                          br()
-                         
-                         
                 ),
                 tabPanel("Data Summary",
                          h4("Uploaded data size"),
