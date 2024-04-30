@@ -94,7 +94,7 @@ dataset <- reactive({
   })
   
   output$samp_data <- DT::renderDataTable({
-    DT::datatable(head(dataset()),rownames = FALSE)
+    DT::datatable(dataset(),rownames = FALSE)
   })
 
   build_dtm <- function(corpus0){
@@ -114,14 +114,14 @@ dataset <- reactive({
   }
 
   # t-test word-groups collecting below
-  word1 <- reactive({
+  word1 <- eventReactive(input$apply,{
     if (is.null(input$wordl_t1)) {return(NULL)}
     else{
       return(unlist(strsplit(input$wordl_t1, ",")))
     }
   })
   
-  word2 <- reactive({
+  word2 <- eventReactive(input$apply,{
     if (is.null(input$wordl_t2)) {return(NULL)}
     else{
       return(unlist(strsplit(input$wordl_t2, ",")))
@@ -145,23 +145,19 @@ dataset <- reactive({
     word1_colm = apply(dtm12[,logi2], 1, sum)
     word2_colm = apply(dtm12[,logi3], 1, sum)
     
-    #test_statistic0 = word1_colm - word2_colm; 
-    #test_statistic0 |> head()
-    
     return(t.test(word1_colm, word2_colm)) # test_statistic0    
-    #return(list(test_words, colnames(dtm12), word1, logi2, word2, logi3, dim(dtm12)))
-  }
+  } # func ends
   
-  corpus_dtm <- reactive({build_dtm(dataset()[,input$y])})
-  output$summary <- renderPrint(run_ttest(corpus_dtm(), word1(), word2())) # 
+  corpus_dtm <- eventReactive(input$apply,{build_dtm(dataset()[,input$y])})
+  output$summary <- renderPrint(run_ttest(corpus_dtm(), word1(), word2())) 
   
   wrdl <- reactive({
-    if(is.null(input$file2$datapath)){return(NULL)}
+    if(is.null(input$file2$datapath)|input$apply){return(NULL)}
     else { return(readLines(input$file2$datapath)) }
   })
   
 #  This chunk is working
-  wordlist0 <- reactive({
+  wordlist0 <- eventReactive(input$apply,{
     if (is.null(input$file)) {return(NULL)} 
     else {
        a00 = unlist(strsplit(input$wordl,","))
@@ -170,7 +166,7 @@ dataset <- reactive({
        return(wordlist0) }
   })
     
-  finalwordlist <- reactive({
+  finalwordlist <- eventReactive(input$apply,{
       if (is.null(input$file)) {return(NULL)}
       else {
         corpus_lower = dataset()
@@ -182,12 +178,8 @@ dataset <- reactive({
   output$wordl <- renderPrint(finalwordlist())
   
   #This Chunk is Working
-  textdf =  reactive({    
+  textdf =  eventReactive(input$apply,{    
     textb = dataset()[,input$y]  # user-chosen text colm
-    #ids = dataset()[,input$x]
-    
-    #colnames(textb[,1]) = "text"
-    #textdf1 = textb |> dplyr::tibble() |> 
     textdf1 = data.frame("text" = textb) |> 
       mutate(docID = row_number()) |>    # row_number() is v useful.    
       group_by(docID) |>
@@ -204,8 +196,7 @@ dataset <- reactive({
       write.csv(new_df, file, row.names=T)            
     }
    )
-  
-  
+    
   # build unit func for wl against one doc
   doc_proc <- function(i0, textdf1, wl1){
 
@@ -246,7 +237,7 @@ dataset <- reactive({
   })
 
   ## highlighted wala beta phase
-  a00 <- reactive({
+  a00 <- eventReactive(input$apply,{
     corpus_lower = filteredCorpus()
     for (word in finalwordlist()){
       word00 = paste0("**",word,"**")
@@ -266,15 +257,12 @@ dataset <- reactive({
   )
   
   output$downloadThisOne = renderDataTable({
-    #outdf1 = wrapper_corpus(textdf(), finalwordlist())
-    #datatable(textdf())
     datatable(filteredCorpus())
   })
   
   output$checker <- renderPlot({
     new_df <- filteredCorpus()
     newdf <- nrow(filteredCorpus())
-    #newdf2 <- nrow(subset(new_df, filtered_sents !=" NA "))
     newdf2 <- nrow(new_df[(new_df$filtered_sents !=" NA "),])
     x <- c(newdf, newdf2)
     labels <- c("No of Documents Containing Keywords","No of Documents Containing NAs")
